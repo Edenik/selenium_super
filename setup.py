@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='selenium_super',
-    version='1.0.5',
+    version='1.0.6',
     author='Eden Nahum',
     author_email='Edenik5@gmail.com',
     description='Selenium web driver with super abilities',
