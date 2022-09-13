@@ -16,7 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 
-from .utils.file_utils import load_json_file, write_json_file
+from .file_utils import FileUtils
 from .localstorage import LocalStorage
 
 class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
@@ -27,7 +27,7 @@ class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
         self.selectors = {}
         
     def load_browser_config(self, file_path):
-        config = load_json_file(file_path=file_path)
+        config = FileUtils().load_json_file(file_path=file_path)
         if not config:
             print('Could not load browser config file!')
         else:
@@ -116,7 +116,7 @@ class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
         has_auth_data = Path(folder_path + 'auth.json').is_file()
 
         if (has_auth_data):
-            auth_file = load_json_file(folder_path + './auth.json')
+            auth_file = FileUtils().load_json_file(folder_path + './auth.json')
             local_storage = auth_file.get('localstorage', [])
             
             try:
@@ -136,7 +136,7 @@ class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
         for key, value in local_storage_items:
             obj[key] = value
 
-        write_json_file(folder_path + 'auth.json',
+        FileUtils().write_json_file(folder_path + 'auth.json',
                         "w+", {
                             'cookies': self.driver.get_cookies(),
                             'localstorage': obj
@@ -287,7 +287,7 @@ class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
             print(f'Error while trying to do infinite scroll on XPATH - {xpath}\nError: {e}')
             
     def load_selectors_file(self, path):
-        config = load_json_file(path)
+        config = FileUtils().load_json_file(path)
         by_options = {
             "By.XPATH": By.XPATH,
             "By.NAME": By.NAME,
@@ -434,7 +434,7 @@ class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
         json_object = {
             'logs' : logs,
         }
-        if file_path: file = write_json_file(file_path=file_path, write_mode='w+', json_object=json_object, stringify=True, log=True)   
+        if file_path: file = FileUtils().write_json_file(file_path=file_path, write_mode='w+', json_object=json_object, stringify=True, log=True)   
         return logs
     
     def click_element_by_xpath(self, xpath):
