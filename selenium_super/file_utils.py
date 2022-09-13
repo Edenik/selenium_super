@@ -2,14 +2,14 @@ import json
 import codecs
 import os
 import shutil
-from folder_utils import create_folder
+from .folder_utils import FolderUtils
 
 class FileUtils():
         
     def write_json_file(self, file_path, write_mode, json_object, stringify=None, log=False):
         write_object = json_object
         directory = '/'.join(file_path.split('/')[:-1])
-        create_folder(directory)
+        FolderUtils().create_folder(directory)
         
         try:
             if log:
