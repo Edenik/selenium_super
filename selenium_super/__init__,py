@@ -2,4 +2,4 @@ from super_web_driver import SuperWebDriver
 from telegram_api import TelegramApi
 from telethon_helpers import TelethonHelpers
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'

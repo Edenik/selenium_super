@@ -2,36 +2,27 @@ import json
 import codecs
 import os
 import shutil
+from folder_utils import create_folder
 
-def check_folder(path):
-    return os.path.isdir(path)
-
-def create_folder(path):
-    # If folder doesn't exist, then create it.
-    if not check_folder(path):
-        os.makedirs(path)
-        
 def write_json_file(file_path, write_mode, json_object, stringify=None, log=False):
     write_object = json_object
     directory = '/'.join(file_path.split('/')[:-1])
     create_folder(directory)
     
     try:
-        if '.json' not in file_path:
-            file_path += '.json'
         if log:
-            print(f'Saving file in - {file_path}')
-
+            print(f'File saved in - {file_path}')
+            
         if stringify is None:
             with open(file_path, write_mode, encoding="utf8") as f:
-                json.dumps(write_object)
-                return f
+                    json.dumps(write_object)
+                    return f
         else:
             to_save = json.dumps(write_object, ensure_ascii=False, indent=4, sort_keys=True, default=str)
             with codecs.open(file_path, write_mode, encoding='utf-8') as f:
                 f.write(to_save)
                 return f
-    
+       
     except Exception as e:
         print("Failed to write to - {}\n{}".format(file_path))
         print(e)
@@ -69,7 +60,7 @@ def load_rows_from_file(filePath, limit=None, row_contain=None):
                         rows.append(clean_line[1:-1])
                     else:
                         rows.append(clean_line)
-                
+                 
                     i += 1
             else: break
         

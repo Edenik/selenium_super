@@ -16,7 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 
-from .file_utils import load_json_file, write_json_file
+from .utils.file_utils import load_json_file, write_json_file
 from .localstorage import LocalStorage
 
 class SuperWebDriver(webdriver.Firefox, webdriver.Chrome):
