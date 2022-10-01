@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
     
 setuptools.setup(
     name='selenium_super',
-    version='1.0.9',
+    version='1.1.0',
     author='Eden Nahum',
     author_email='Edenik5@gmail.com',
     description='Selenium web driver with super abilities',
@@ -21,6 +21,5 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     license='MIT',
-    packages=['selenium_super'],
     install_requires=install_requires,
 )
