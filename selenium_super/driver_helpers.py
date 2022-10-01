@@ -1,19 +1,22 @@
+import asyncio
 import base64
 import json
 import codecs
 from pathlib import Path
 import time
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+
+from selenium_super.process_multi_tasks import MultiTask, ProcessMultiTasks
 
 from .file_utils import FileUtils
 from .localstorage import LocalStorage
 
 class DriverHelpers():
     def __init__(self, driver):
+        print('DriverHelpers is deprecated!')
+        pass
         self.driver = driver
         self.local_storage = LocalStorage(self.driver)
         self.selectors = {}
@@ -148,61 +151,7 @@ class DriverHelpers():
     def wait_until_element_disappear(self, selector):
         self.driver.implicitly_wait(0)
         WebDriverWait(self.driver, 30).until(EC.invisibility_of_element_located((selector.get('by'), selector.get('value'))))
-        
-    def infinite(self, loading_selector, xpath):
-        # Get scroll height after first time page load
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
-        # scroll_element = self.driver.execute_script(f'return document.evaluate("{xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue')
-        scroll_element = f'document.evaluate("{xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue'
-        while scroll_element:
-            # Scroll down to bottom
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            # Wait until element dissapear
-            self.wait_until_element_disappear(loading_selector)
-            print(last_height)
-            # Calculate new scroll height and compare with last scroll height
-            # new_height = self.driver.execute_script("return document.body.scrollHeight")
-            elementProps = self.driver.execute_script(f'return {scroll_element}.getBoundingClientRect()')
-            print(elementProps)
-            new_height =  self.driver.execute_script(f"return ({elementProps.get('height')} + {scroll_element}.scrollTop)") 
 
-            if new_height == last_height:
-                break
-            last_height = new_height
-                    
-    def infinite_scroll_to_bottom_by_xpath(self, xpath=None, scroll_steps=250, data_append_function=None, loading_selector=None):
-        try:
-            data = []
-            
-            verical_ordinate = scroll_steps
-            last_height = None 
-            scroll_element = f'document.evaluate("{xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue'
-            # print(scroll_element)
-            while scroll_element:
-                print(f"{scroll_element}.scrollTo({scroll_element}.scrollTop, {verical_ordinate});")
-                
-                verical_ordinate += scroll_steps
-
-                self.driver.execute_script(f"{scroll_element}.scrollTo({scroll_element}.scrollTop, {verical_ordinate});")
-                # self.driver.execute_script(f"window.scrollTo(0, {verical_ordinate});")
-                if loading_selector:
-                    self.wait_until_element_disappear(loading_selector)
-                    
-                elementProps = self.driver.execute_script(f'return {scroll_element}.getBoundingClientRect()')
-                height =  self.driver.execute_script(f"return ({elementProps.get('height')} + {scroll_element}.scrollTop)") if elementProps else 500
-                
-                if last_height != height:
-                    last_height = height
-                    if data_append_function:
-                        data = data + (data_append_function() or [])
-                    else: time.sleep(0.20)
-                else:
-                    break
-            
-            if data_append_function: return list(data)
-        except Exception as e:
-            print(f'Error while trying to do infinite scroll on XPATH - {xpath}\nError: {e}')
-            
     def load_selectors_file(self, path):
         config = FileUtils().load_json_file(path)
         by_options = {
@@ -287,6 +236,25 @@ class DriverHelpers():
             print(e)
             return None
 
+    def get_args_for_elements_by_selector(self, selector):
+        selector_name = selector.get('selector_name', None)
+        base_element = selector.get('base_element', None)
+        multiple = selector.get('multiple', None)
+        attribute = selector.get('attribute', None)
+        filter = selector.get('filter', None)
+        xpath = selector.get('xpath', None)
+        wait = selector.get('wait', None)
+        return [selector_name, base_element, multiple, attribute, filter, xpath, wait]
+    
+    def get_multiple_elements_by_selectors(self, selectors, return_when=asyncio.ALL_COMPLETED):
+        processor = ProcessMultiTasks()
+        data = processor.run(tasks=[
+            MultiTask(self.get_elements_by_selector, selector_args[0], args=(selector_args)) for selector_args in [self.get_args_for_elements_by_selector(selector) for selector in selectors]
+        ], return_when=return_when)
+
+        return data
+    
+    
     def wait_for_clickable_element(self,
                                    clickable_element,
                                    base_element=None,
@@ -356,3 +324,29 @@ class DriverHelpers():
     
     def click_element_by_xpath(self, xpath):
         self.driver.execute_script("""document.evaluate({}, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click()""".format(xpath))
+        
+    def send_devtools(self, cmd, params={}):
+        resource = f"/session/{self.driver.session_id}/chromium/send_command_and_get_result"
+        url = self.driver.command_executor._url + resource
+        body = json.dumps({'cmd': cmd, 'params': params})
+        response = self.driver.command_executor._request('POST', url, body)
+        if response.get('status'):
+            raise Exception(response.get('value'))
+        return response.get('value')
+
+    def get_pdf_from_html(self, print_options = {}, save_path=None):
+        calculated_print_options = {
+            'landscape': False,
+            'displayHeaderFooter': False,
+            'printBackground': True,
+            'preferCSSPageSize': True,
+        }
+        calculated_print_options.update(print_options)
+        result = self.send_devtools("Page.printToPDF", calculated_print_options)
+        data = base64.b64decode(result['data'])
+        if save_path:
+            with open(save_path, 'wb') as file:
+                file.write(data)
+                file.close()
+        return data
+    

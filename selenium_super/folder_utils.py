@@ -2,7 +2,8 @@ import os
 import glob
 import shutil
 
-class FolderUtils():
+
+class FolderUtils:
     def check_folder(self, path):
         return os.path.isdir(path)
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class TimeUtils():
+class TimeUtils:
     def get_time_stamp(self, date:datetime=None, time_splitter=':', date_splitter='-', between_splitter=' ', show_seconds=False):
         seconds_text = ''
         if show_seconds:

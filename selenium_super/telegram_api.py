@@ -1,6 +1,6 @@
 import requests
 
-class TelegramApi():
+class TelegramApi:
     def __init__(self, chat_id, bot_token) :
         self.chat_id = chat_id
         self.bot_token = bot_token
