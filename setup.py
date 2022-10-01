@@ -13,14 +13,10 @@ except ImportError:
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-def load_requirements(fname):
-    reqs = parse_requirements(fname, session='install')
-    return [str(ir.req) for ir in reqs]
+def load_requirements():
+    reqs = parse_requirements('./requirements.txt', session='install')
+    return [str(ir.requirement) for ir in reqs]
 
-
-# with open(lib_folder + '/requirements.txt') as f:
-#     install_requires = f.read().splitlines()
-    
 setuptools.setup(
     name='selenium_super',
     version='1.1.0',
@@ -36,5 +32,5 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     license='MIT',
-    install_requires=load_requirements('requirements.txt'),
+    install_requires=load_requirements(),
 )
