@@ -1,4 +1,4 @@
-import setuptools
+from setuptools import setup, find_packages 
 import os
 lib_folder = os.path.dirname(os.path.realpath(__file__))
 
@@ -14,12 +14,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 def load_requirements():
-    reqs = parse_requirements('./requirements.txt', session='install')
+    reqs = parse_requirements(r'./src/selenium_super.egg-info/requirements.txt', session='install')
     return [str(ir.requirement) for ir in reqs]
 
-setuptools.setup(
+setup(
     name='selenium_super',
-    version='1.1.0',
+    version='0.0.1',
     author='Eden Nahum',
     author_email='Edenik5@gmail.com',
     description='Selenium web driver with super abilities',
@@ -29,8 +29,8 @@ setuptools.setup(
     project_urls = {
         "Bug Tracker": "https://github.com/edenik/selenium_super/issues"
     },
-    packages=setuptools.find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    package_dir = {'': 'src'},
     license='MIT',
     install_requires=load_requirements(),
 )

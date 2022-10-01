@@ -11,7 +11,7 @@ import base64
 import json
 import codecs
 
-from selenium_super.process_multi_tasks import MultiTask, ProcessMultiTasks
+from .process_multi_tasks import MultiTask, ProcessMultiTasks
 from .auth import Auth
 from .enums import By, Until, ElementActions
 from .file_utils import FileUtils
