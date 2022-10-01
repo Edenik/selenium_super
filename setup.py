@@ -14,7 +14,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 def load_requirements(fname):
-    reqs = parse_requirements(fname)
+    reqs = parse_requirements(fname, session='install')
     return [str(ir.req) for ir in reqs]
 
 
